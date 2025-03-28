@@ -6,22 +6,19 @@ from aiogram import Bot, Dispatcher, F
 from aiogram.filters import Command
 from states import Form
 
-# Настройка логирования
+#Логирование
 logging.basicConfig(
-    level=logging.INFO,  # Уровень логирования (INFO, DEBUG, WARNING, ERROR, CRITICAL)
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",  # Формат сообщений
-    filename="bot.log",  # Логи будут записываться в файл bot.log
+    level=logging.INFO,  
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",  
+    filename="bot.log", 
 )
-
 logger = logging.getLogger(__name__)
 
-# Вставьте сюда ваш токен
-API_TOKEN = cfg.BOT_TOKEN
-# Инициализация бота и диспетчера
-bot = Bot(token=API_TOKEN)
+
+bot = Bot(token=cfg.BOT_TOKEN)
 dp = Dispatcher()
 
-
+#Регистрация обработчиков
 dp.message.register(cmd_start, Command("start"))
 dp.message.register(cmd_quote, Command("quote"))
 dp.message.register(
@@ -30,7 +27,7 @@ dp.message.register(
     F.text
 )
 
-# Запуск бота
+#Запуск бота
 async def main():
     logger.info("Бот запущен")
     await dp.start_polling(bot)
