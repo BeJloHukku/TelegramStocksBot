@@ -11,6 +11,7 @@ def get_stock_price(ticker: str) -> float:
 def get_price_for_russian_stock(ticker: str) -> float:
     url = f"https://iss.moex.com/iss/engines/stock/markets/shares/securities/{ticker}.json"
     response = requests.get(url).json()
-    price = response["marketdata"]["data"][0][12]  # Последняя цена
+    price = response["securities"]["data"][0][3]  
     return float(price)
+
 

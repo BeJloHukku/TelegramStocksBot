@@ -1,20 +1,19 @@
-from aiogram import types, F
-from utils import get_stock_price, get_price_for_russian_stock
+from aiogram import types, F, Router
+from aiogram.filters import CommandStart, Command
+from .utils import get_stock_price, get_price_for_russian_stock
 from aiogram.fsm.context import FSMContext
 from states import Form
-import logging
 
-logger = logging.getLogger(__name__)
+router = Router()
 
+@router.message(Command('quote'))
 async def cmd_quote(message:types.Message, state: FSMContext):
-    logger.info(f"Пользователь {message.from_user.id} запросил котировку")
     await message.answer("Введите тикер акции, например: AAPL")
-    await state.set_state(Form.waiting_for_ticket)
+    await state.set_state(Form.waiting_for_ticker)
 
 
 async def process_ticker(message: types.Message, state: FSMContext):
     ticker = message.text.upper()
-    logger.info(f"Пользователь {message.from_user.id} ввел тикер: {ticker}")
     try:
         try:
             price = get_stock_price(ticker)  
@@ -23,7 +22,6 @@ async def process_ticker(message: types.Message, state: FSMContext):
                 "Чтобы узнать другие котировки, введите /quote"
             )
         except Exception as e:
-            logger.debug(f"Не удалось получить данные через yfinance: {e}")
             price = get_price_for_russian_stock(ticker)  
             await message.answer(
                 f"📊 Котировка {ticker}: {price:.2f} RUB\n"
@@ -31,7 +29,6 @@ async def process_ticker(message: types.Message, state: FSMContext):
             )
             
     except Exception as e:
-        logger.error(f"Ошибка при обработке тикера {ticker}: {e}")
         await message.answer(
             "❌ Не удалось получить данные по этому тикеру.\n"
             "Проверьте правильность написания (например: AAPL, SBER).\n"
@@ -39,3 +36,9 @@ async def process_ticker(message: types.Message, state: FSMContext):
         )
     
     await state.clear()
+
+
+
+@router.message(CommandStart())
+async def cmd_start(message: types.Message):
+    await message.answer('Привет! Я бот для мониторинга ценных бумаг. Используй /quote для получения котировки.')
