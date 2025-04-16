@@ -27,7 +27,7 @@ class Stock(Base):
     close_price: Mapped[str] = mapped_column(String(6))
     open_price: Mapped[str] = mapped_column(String(6))
     description: Mapped[str] = mapped_column(String(100))
-    user_id:Mapped[int] = mapped_column(ForeignKey('users.id'))
+    user_id:Mapped[int] = mapped_column(ForeignKey('users.tg_id'))
 
 
 async def async_main():

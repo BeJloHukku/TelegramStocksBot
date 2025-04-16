@@ -6,6 +6,7 @@ from app.database.models import async_main
 
 
 
+
 async def main():
     await async_main()
     bot = Bot(token=cfg.BOT_TOKEN)
