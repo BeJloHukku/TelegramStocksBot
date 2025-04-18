@@ -1,8 +1,8 @@
 import asyncio
 import config as cfg
-from app.handlers import router
+from app import router
 from aiogram import Bot, Dispatcher
-from app.database.models import async_main
+from app import async_main
 
 
 
