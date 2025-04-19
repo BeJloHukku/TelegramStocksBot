@@ -2,6 +2,9 @@ from .base import connection
 from sqlalchemy.exc import SQLAlchemyError
 from .models import User, Bag
 from sqlalchemy import select, update
+import logging
+logging.basicConfig()
+logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
 
 
 
@@ -23,20 +26,32 @@ async def set_user(session, user_id, name):
 
 
 @connection
-async def add_stock(session, user_id, ticker):
+async def add_stock(session, user_id: int, ticker: str) -> bool:
     try:
-        user = await session.scalar(select(User).where(User.tg_id == user_id))
 
+        ticker = ticker.upper()
+
+        user = await session.scalar(
+            select(User).where(User.tg_id == user_id)
+        )
+        
         if not user:
-            return None
-        else:
-            if ticker not in user.bag.ticker:
-                user.bag.ticker.append(ticker)
-                session.commit()
-                return True
-        return False
+            return False
+
+        if ticker in user.bag.ticker:
+            return False
+
+
+        user.bag.ticker.append(ticker)
+
+        session.add(user.bag)
+        await session.commit()
+
+        return True
+
     except SQLAlchemyError as e:
         await session.rollback()
+        return False
 
 
 @connection

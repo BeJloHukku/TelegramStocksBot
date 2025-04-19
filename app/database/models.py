@@ -1,4 +1,5 @@
 from sqlalchemy import BigInteger, String, ForeignKey, JSON
+from sqlalchemy.ext.mutable import MutableList
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from .database import Base
 from typing import Annotated
@@ -26,7 +27,7 @@ class Bag(Base):
     __tablename__ = 'bags'
 
     id: Mapped[id]
-    ticker: Mapped[list[str] | None] = mapped_column(JSON)
+    ticker: Mapped[list[str] | None] = mapped_column(MutableList.as_mutable(JSON), default=list)
     user_id:Mapped[int] = mapped_column(ForeignKey('users.id'), unique=True)
     user: Mapped['User'] = relationship(
         'User', 
