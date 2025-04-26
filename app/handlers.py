@@ -44,22 +44,22 @@ async def bag(callback : CallbackQuery):
     tickers = safe_json_parse(bag if bag else None, default=[])
 
     if bag == None:
-        await callback.message.answer('К сожалению, вы еще не зарегистрированы. ' \
+        await callback.message.edit_text('К сожалению, вы еще не зарегистрированы. ' \
                                         'Для регистрации запустите команду /start', reply_markup=kb.to_main)
     elif bag == []:
-        await callback.message.answer('Ваш портфель пуст!', reply_markup=kb.to_main)
+        await callback.message.edit_text('Ваш портфель пуст!', reply_markup=kb.to_main)
     else:
         message = "📊 Ваш портфель:\n" + "\n".join(
             f"• {ticker}" for ticker in tickers
         )
-        await callback.message.answer(message)
+        await callback.message.edit_text(message, reply_markup= await kb.inline_stocks(tickers))
 
 
 @router.callback_query(F.data == 'price')
 async def check_price(callback : CallbackQuery, state : FSMContext):
     await callback.answer('')
     await state.set_state(AddingState.stock)
-    await callback.message.answer("Введите тикер акции!")
+    await callback.message.edit_text("Введите тикер акции!")
 
 
 @router.message(AddingState.stock)
@@ -74,6 +74,7 @@ async def show_price(message : Message, state : FSMContext):
             reply_markup=kb.after_checking_price,
         )
     except Exception as e:
+        await state.update_data(stock=None)
         await message.answer(
             "🔍 Тикер не найден.\n"
             "Попробуйте ввести другой тикер, например: SBER, GAZP"
@@ -89,3 +90,13 @@ async def add_to_bag(callback : CallbackQuery, state : FSMContext):
         await callback.message.answer("Акция успешно добавлена")
     else:
         await callback.message.answer("Ошибка добавления акции")
+        await state.update_data(stock=None)
+
+
+@router.callback_query(F.data.startswith('stock_'))
+async def show_stock_info(callback : CallbackQuery):
+    await callback.answer('Echo')
+    ticker = callback.data.split('_')[1]
+    info = get_information(ticker)
+    await callback.message.edit_text(f"Название: {info['shortname']}\n \
+                                     Цена: {info['LAST']} \n ")

@@ -18,3 +18,5 @@ def get_information(ticker: str) -> dict:
 
 
 
+
+

@@ -9,7 +9,7 @@ logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
 
 
 @connection
-async def set_user(session, user_id, name):
+async def set_user(session, user_id: int, name: str):
     try:
         user = await session.scalar(select(User).where(User.tg_id == user_id))
 
@@ -27,8 +27,10 @@ async def set_user(session, user_id, name):
 
 @connection
 async def add_stock(session, user_id: int, ticker: str) -> bool:
+    print(ticker)
     try:
-
+        if ticker is None:
+            return False
         ticker = ticker.upper()
 
         user = await session.scalar(
@@ -55,7 +57,7 @@ async def add_stock(session, user_id: int, ticker: str) -> bool:
 
 
 @connection
-async def open_bag(session, user_id):
+async def open_bag(session, user_id: int):
     try:
         user = await session.scalar(select(User).where(User.tg_id == user_id))
 

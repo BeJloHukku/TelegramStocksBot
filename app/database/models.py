@@ -5,7 +5,6 @@ from .database import Base
 from typing import Annotated
 
 
-price_str = Annotated[str, mapped_column(String(6))]
 id = Annotated[int, mapped_column(primary_key=True)]
 
 
